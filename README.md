@@ -1,6 +1,6 @@
-# Redis Pool
+# Go Client Redis Pool
 
-Redis pool supports master-slave access model in redis protol.
+Go client redis pool supports master-slave access model in redis protol.
 
 ## How to use
 
