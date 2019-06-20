@@ -14,11 +14,11 @@ func main() {
 	reply, err := pool.Do("GET", "a")
 	if err != nil {
 		fmt.Println(err)
-		return;
+		return
 	}
 	if reply == nil {
 		fmt.Println("it is nil")
-		return;
+		return
 	}
 	by := reply.([]byte)
 	fmt.Print(string(by))
