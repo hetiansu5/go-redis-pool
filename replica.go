@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"strings"
 	"time"
-
+	"fmt"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -15,31 +15,44 @@ type ReplicaPool struct {
 }
 
 type ReplicaConfig struct {
-	Master string
-	Slaves []string
-	opts   *Options
+	Master RedisConfig
+	Slaves []RedisConfig
+	Opts   Options
+}
+
+type RedisConfig struct {
+	Host     string
+	Port     int
+	Password string
+	DB       int
+}
+
+func (r *RedisConfig) GetPortOrDefault() int {
+	if r.Port == 0 {
+		return 6379
+	} else {
+		return r.Port
+	}
 }
 
 var readCommandTab map[string]bool
 
-func NewReplicaPool(conf *ReplicaConfig, opts *Options) *ReplicaPool {
-	if opts == nil {
-		opts = NewOptions()
-	}
-	conf.opts = opts
-	pool := NewReplicaPoolWithDial(conf, func(addr string) (redis.Conn, error) {
+func NewReplicaPool(conf *ReplicaConfig) *ReplicaPool {
+	opts := FillOptions(conf.Opts)
+	pool := NewReplicaPoolWithDial(conf, func(r *RedisConfig) (redis.Conn, error) {
+		addr := fmt.Sprintf("%s:%d", r.Host, r.GetPortOrDefault())
 		conn, err := redis.DialTimeout("tcp", addr, opts.ConnectTimeout, opts.ReadTimeout, opts.WriteTimeout)
 		if err != nil {
 			return conn, err
 		}
-		if opts.Password != "" {
-			if _, err := conn.Do("AUTH", opts.Password); err != nil {
+		if r.Password != "" {
+			if _, err := conn.Do("AUTH", r.Password); err != nil {
 				conn.Close()
 				return nil, err
 			}
 		}
-		if opts.DB != 0 {
-			if _, err := conn.Do("SELECT", opts.DB); err != nil {
+		if r.DB != 0 {
+			if _, err := conn.Do("SELECT", r.DB); err != nil {
 				conn.Close()
 				return nil, err
 			}
@@ -54,15 +67,15 @@ func NewReplicaPool(conf *ReplicaConfig, opts *Options) *ReplicaPool {
 	return pool
 }
 
-func NewReplicaPoolWithDial(conf *ReplicaConfig, newFn func(addr string) (redis.Conn, error)) *ReplicaPool {
-	if conf.Master == "" {
+func NewReplicaPoolWithDial(conf *ReplicaConfig, newFn func(redisConf *RedisConfig) (redis.Conn, error)) *ReplicaPool {
+	if conf.Master.Host == "" {
 		return nil
 	}
 
 	rp := new(ReplicaPool)
 	rp.master = &redis.Pool{
 		Dial: func() (redis.Conn, error) {
-			return newFn(conf.Master)
+			return newFn(&conf.Master)
 		},
 	}
 
@@ -71,7 +84,7 @@ func NewReplicaPoolWithDial(conf *ReplicaConfig, newFn func(addr string) (redis.
 		for i, slave := range conf.Slaves {
 			rp.slaves[i] = &redis.Pool{
 				Dial: func() (redis.Conn, error) {
-					return newFn(slave)
+					return newFn(&slave)
 				},
 			}
 		}

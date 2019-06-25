@@ -6,20 +6,34 @@ import (
 )
 
 func main() {
-	conf := &go_redis_pool.ReplicaConfig{
-		Master: "127.0.0.1:6379",
-		Slaves: []string{"127.0.0.1:6379"},
+	cf := go_redis_pool.RedisConfig{
+		Host: "127.0.0.1",
+		Port: 6379,
 	}
-	pool := go_redis_pool.NewReplicaPool(conf, nil)
-	reply, err := pool.Do("GET", "a")
+	conf := &go_redis_pool.ReplicaConfig{
+		Master: cf,
+		Slaves: []go_redis_pool.RedisConfig{cf},
+	}
+	pool := go_redis_pool.NewReplicaPool(conf)
+	key := "my:test"
+	res, err := pool.Set(key, "aaa")
+	if err != nil {
+		fmt.Println(err)
+		return
+	} else if res != true {
+		fmt.Println("return error")
+		return
+	}
+
+	reply, err := pool.Get(key)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	if reply == nil {
-		fmt.Println("it is nil")
+	if reply == "" {
+		fmt.Println("it is empty")
 		return
 	}
-	by := reply.([]byte)
-	fmt.Print(string(by))
+
+	fmt.Print(reply)
 }

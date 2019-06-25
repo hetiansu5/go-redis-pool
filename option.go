@@ -8,7 +8,6 @@ import (
 var errWrongArguments error = errors.New("wrong number of arugments")
 
 type Options struct {
-	DB             int
 	MaxIdle        int
 	MaxActive      int
 	Wait           bool
@@ -16,18 +15,38 @@ type Options struct {
 	ConnectTimeout time.Duration
 	ReadTimeout    time.Duration
 	WriteTimeout   time.Duration
-	Password       string
 }
 
-func NewOptions() *Options {
-	return &Options{
-		DB:             0,
-		MaxIdle:        256,
-		MaxActive:      1024,
+func NewOptions() Options {
+	return Options{
+		MaxIdle:        64,
+		MaxActive:      256,
 		IdleTimeout:    180 * time.Second,
 		ConnectTimeout: 1 * time.Second,
 		ReadTimeout:    1 * time.Second,
 		WriteTimeout:   1 * time.Second,
-		Password:       "",
 	}
+}
+
+func FillOptions(opts Options) Options {
+	initOpts := NewOptions()
+	if opts.MaxIdle > 0 {
+		initOpts.MaxIdle = opts.MaxIdle
+	}
+	if opts.MaxActive > 0 {
+		initOpts.MaxActive = opts.MaxActive
+	}
+	if opts.IdleTimeout > 0 {
+		initOpts.IdleTimeout = opts.IdleTimeout
+	}
+	if opts.ConnectTimeout > 0 {
+		initOpts.ConnectTimeout = opts.ConnectTimeout
+	}
+	if opts.ReadTimeout > 0 {
+		initOpts.ReadTimeout = opts.ReadTimeout
+	}
+	if opts.WriteTimeout > 0 {
+		initOpts.WriteTimeout = opts.WriteTimeout
+	}
+	return initOpts
 }
