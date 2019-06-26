@@ -36,6 +36,9 @@ func FillOptions(opts Options) Options {
 	if opts.MaxActive > 0 {
 		initOpts.MaxActive = opts.MaxActive
 	}
+	if opts.Wait {
+		initOpts.Wait = opts.Wait
+	}
 	if opts.IdleTimeout > 0 {
 		initOpts.IdleTimeout = opts.IdleTimeout
 	}
