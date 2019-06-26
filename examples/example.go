@@ -12,7 +12,7 @@ func main() {
 	}
 	conf := &go_redis_pool.ReplicaConfig{
 		Master: cf,
-		Slaves: []go_redis_pool.RedisConfig{cf},
+		//Slaves: []go_redis_pool.RedisConfig{cf},
 	}
 	pool := go_redis_pool.NewReplicaPool(conf)
 	key := "my:test"

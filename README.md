@@ -10,9 +10,12 @@ See the [example.go](./example/example.go)
 
 
 ```
+cf := go_redis_pool.RedisConfig{
+	Host: "127.0.0.1",
+	Port: 6379,
+}
 conf := &go_redis_pool.ReplicaConfig{
-	Master: "127.0.0.1:6379",
-    Slaves: []string{"127.0.0.1:6379"},
+	Master: cf
 }
 pool := go_redis_pool.NewReplicaPool(conf, nil)
 pool.Do("GET", "a")
