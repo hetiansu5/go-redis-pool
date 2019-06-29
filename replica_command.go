@@ -250,6 +250,10 @@ func (rp *ReplicaPool) LPop(key string) (string, error) {
 	return redis.String(rp.Do("LPOP", key))
 }
 
+func (rp *ReplicaPool) BLPop(args ...interface{}) ([]string, error) {
+	return redis.Strings(rp.Do("BLPOP", args...))
+}
+
 func (rp *ReplicaPool) LPush(key string, values ...interface{}) (int, error) {
 	args := make([]interface{}, 0)
 	args = append(args, key)
