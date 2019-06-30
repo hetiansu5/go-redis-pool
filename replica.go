@@ -8,6 +8,10 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+var (
+	ErrNil = redis.ErrNil
+)
+
 type ReplicaPool struct {
 	master         *redis.Pool
 	slaves         []*redis.Pool

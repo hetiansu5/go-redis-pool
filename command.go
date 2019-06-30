@@ -79,6 +79,7 @@ type command interface {
 	LInsertAfter(key string, pivot, value interface{}) int
 	LLen(key string) int
 	LPop(key string) string
+	BLPop(args ...interface{}) ([]string, error)
 	LPush(key string, values ...interface{}) int
 	LPushX(key string, value interface{}) int
 	LRange(key string, start, stop int64) []string
