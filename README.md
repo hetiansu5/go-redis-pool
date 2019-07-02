@@ -4,7 +4,7 @@ Go client redis pool supports master-slave access model in redis protol.
 
 ## How to use
 
-See the [example.go](./example/example.go)
+See the [example.go](./examples/example.go)
 
 ### Redis master-slave
 
